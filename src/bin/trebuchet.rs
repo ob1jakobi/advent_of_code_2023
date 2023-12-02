@@ -49,9 +49,19 @@ fn main() {
         .join("assets")
         .join("day_1_input.txt");
     let file = File::open(file_path).expect("Unable to open file");
-    let reader = BufReader::new(file);
 
-    let sum: usize = reader.lines()
+    let reader1 = BufReader::new(&file);
+    let reader2 = BufReader::new(&file);
+
+    let part_one_sum = part_one(reader1);
+    let part_two_sum = part_two(reader2);
+
+    println!("Part One Solution:\t{}", part_one_sum);
+    println!("Part Two Solution:\t{}", part_two_sum);
+}
+
+fn part_one(reader: BufReader<&File>) -> usize {
+    reader.lines()
         .filter_map(|line| line.ok())
         .filter_map(|line| {
             let mut char_nums: VecDeque<_> = line.split(|c: char| !c.is_digit(10))
@@ -63,8 +73,9 @@ fn main() {
             let last = char_nums.pop_back().unwrap_or(first);
             let concatenated = format!("{}{}", first, last);
             concatenated.parse::<usize>().ok()
-        }).sum();
+        }).sum()
+}
 
-    println!("{}", sum);
-
+fn part_two(reader: BufReader<&File>) -> usize {
+    2
 }
