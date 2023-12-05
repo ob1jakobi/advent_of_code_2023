@@ -4,13 +4,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use regex::Regex;
 
-#[derive(Debug)]
-struct _GameData {
-    _game_number: usize,
-    _color_counts: [usize; 3],  // [blue, green, red]
-    _is_valid: bool,
-}
-
 /// You're launching high into the atmosphere!  The apex of your trajectory just barely reaches the
 /// surface of a large island floating in the sky. You gently land in a fluffy pile of leaves. It's
 /// quite cold, but you don't see much snow. A Elf runs over to greet you.
