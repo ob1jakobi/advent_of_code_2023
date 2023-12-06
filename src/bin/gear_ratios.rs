@@ -1,3 +1,5 @@
+use std::{env, fs};
+use std::path::PathBuf;
 
 /// You and the Elf eventually reach a gondola lift station; he says the gondola lift will take you
 /// up to the *water source*, but this is as far as he can bring you. You go inside.
@@ -39,14 +41,25 @@
 ///
 /// Of course, the actual engine schematic is much larger. *What is the sum of all of the part
 /// numbers in the engine schematic?*
+fn part_1(_input: &str) -> usize {
+    // TODO: what the fuck!
+    2
+}
+
+fn part_2(_input: &str) -> usize {
+    // TODO
+    2
+}
+
 fn main() {
-    // TODO:
-}
+    let cwd = env::current_dir().unwrap_or(PathBuf::default());
+    let input_path = cwd.join("assets").join("day_3_input.txt");
 
-fn part_1() {
-    // TODO
-}
+    let input = fs::read_to_string(&input_path).unwrap_or(String::default());
 
-fn part_2() {
-    // TODO
+    let part_1_result = part_1(&input);
+    let part_2_result = part_2(&input);
+
+    println!("Part 1:\t{}", part_1_result);
+    println!("Part 2:\t{}", part_2_result);
 }
