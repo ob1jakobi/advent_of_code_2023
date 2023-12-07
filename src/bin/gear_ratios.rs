@@ -8,9 +8,9 @@ use std::path::PathBuf;
 ///
 /// "Aaah!"
 ///
-/// You turn around to see a slightly-greasy Elf with a wrench and a look of surprise. "Sorry, I
+/// You turn around to see a slightly-greasy Elf with a wrench and a look of surprise. "Sorry, row_num
 /// wasn't expecting anyone! The gondola lift isn't working right now; it'll still be a while before
-/// I can fix it." You offer to help.
+/// row_num can fix it." You offer to help.
 ///
 /// The engineer explains that an engine part seems to be missing from the engine, but nobody can
 /// figure out which one. If you can *add up all the part numbers* in the engine schematic, it should
@@ -41,9 +41,68 @@ use std::path::PathBuf;
 ///
 /// Of course, the actual engine schematic is much larger. *What is the sum of all of the part
 /// numbers in the engine schematic?*
-fn part_1(_input: &str) -> usize {
-    // TODO: what the fuck!
-    2
+fn part_1(input: &str) -> usize {
+
+    let num_lines = input.lines().collect::<Vec<&str>>().len();
+    let two_d_chars: Vec<Vec<char>> = input
+        .lines()
+        .map(|line| line.chars().collect::<Vec<char>>()).collect();
+
+    let is_symbol = |c: char| !c.is_digit(10) && c != '.' && c != '\n';
+    let mut nums: Vec<usize> = Vec::new();
+
+
+
+    for (row_num, line) in input.lines().enumerate() {
+        let mut s_num: String = String::new();
+        let mut is_valid_num: bool = false;
+        for (col_num, ch) in line.char_indices() {
+            if ch.is_digit(10) {
+                let (left, right) = match (row_num, col_num) {
+                    (x, y) if y == 0 => ((x, y), (x, y + 1)),
+                    (x, y) => ((x, y - 1), (x, y + 1)),
+                };
+                let (up, down) = match (row_num, col_num) {
+                    (x, y) if x == 0 => ((x, y), (x + 1, y)),
+                    (x, y) => ((x - 1, y), (x + 1, y)),
+                };
+                let (diag_ul, diag_ur) = match (row_num, col_num) {
+                    (x, y) if x == 0 && y == 0 => ((x, y), (x, y + 1)),
+                    (x, y) if x == 0 => ((x, y - 1), (x, y + 1)),
+                    (x, y) if y == 0 => ((x - 1, y), (x - 1, y + 1)),
+                    (x, y) => ((x - 1, y - 1), (x - 1, y + 1)),
+                };
+                let (diag_ll, diag_lr) = match (row_num, col_num) {
+                    (x, y) if y == 0 => ((x + 1, y), (x + 1, y + 1)),
+                    (x, y) => ((x + 1, y - 1), (x + 1, y + 1)),
+                };
+                let neighbors: [(usize, usize); 8] = [
+                    // Horizontally adjacent
+                    left, right,
+                    // Vertically adjacent
+                    up, down,
+                    // Diagonally adjacent
+                    diag_ul, diag_ur,
+                    diag_ll, diag_lr,
+                ];
+                neighbors.iter().for_each(|(x, y)| {
+                    match input.lines().nth(*x).and_then(|l| l.chars().nth(*y)) {
+                        Some(c) if is_symbol(c) => is_valid_num = true,
+                        _ => (),
+                    }
+                });
+                s_num.push(ch);
+            } else {
+                if is_valid_num {
+                    is_valid_num = false;
+                    let num: usize = s_num.parse().unwrap_or(0);
+                    nums.push(num);
+                }
+                s_num.clear();
+            }
+        }
+    }
+    nums.iter().sum()
 }
 
 fn part_2(_input: &str) -> usize {
