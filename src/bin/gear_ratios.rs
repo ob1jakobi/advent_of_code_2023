@@ -42,7 +42,62 @@ use std::path::PathBuf;
 /// Of course, the actual engine schematic is much larger. *What is the sum of all of the part
 /// numbers in the engine schematic?*
 fn part_1(input: &str) -> usize {
+    // 537732
+    let is_symbol = |c: char| !c.is_digit(10) && c != '.' && c != '\n';
+    let mut s_nums: Vec<String> = Vec::new();
 
+    for (row_num, line) in input.lines().enumerate() {
+        let mut is_valid_num: bool = false;
+        let mut s = String::new();
+
+        for (col_num, ch) in line.char_indices() {
+            if ch.is_digit(10) {
+                let (left, right) = match (row_num, col_num) {
+                    (x, y) if y == 0 => ((x, y), (x, y + 1)),
+                    (x, y) => ((x, y - 1), (x, y + 1)),
+                };
+                let (up, down) = match (row_num, col_num) {
+                    (x, y) if x == 0 => ((x, y), (x + 1, y)),
+                    (x, y) => ((x - 1, y), (x + 1, y)),
+                };
+                let (diag_ul, diag_ur) = match (row_num, col_num) {
+                    (x, y) if x == 0 && y == 0 => ((x, y), (x, y + 1)),
+                    (x, y) if x == 0 => ((x, y - 1), (x, y + 1)),
+                    (x, y) if y == 0 => ((x - 1, y), (x - 1, y + 1)),
+                    (x, y) => ((x - 1, y - 1), (x - 1, y + 1)),
+                };
+                let (diag_ll, diag_lr) = match (row_num, col_num) {
+                    (x, y) if y == 0 => ((x + 1, y), (x + 1, y + 1)),
+                    (x, y) => ((x + 1, y - 1), (x + 1, y + 1)),
+                };
+
+                let neighbors: [(usize, usize); 8] = [
+                    left, right,
+                    up, down,
+                    diag_ul, diag_ur,
+                    diag_ll, diag_lr,
+                ];
+
+                is_valid_num = neighbors
+                    .iter()
+                    .filter_map(|&(x, y)| {
+                        input.lines().nth(x).and_then(|l| l.chars().nth(y))
+                    })
+                    .fold(is_valid_num, |acc, c| acc || is_symbol(c));
+
+                s.push(ch);
+            } else {
+                if is_valid_num {
+                    s_nums.push(s.clone());
+                }
+                is_valid_num = false;
+                s.clear();
+            }
+        }
+    }
+    s_nums.into_iter().filter_map(|s| s.parse::<usize>().ok()).sum()
+
+    /*
     //let num_lines = input.lines().collect::<Vec<&str>>().len();
     let two_d_chars: Vec<Vec<char>> = input
         .lines()
@@ -50,6 +105,7 @@ fn part_1(input: &str) -> usize {
 
     let is_symbol = |c: char| !c.is_digit(10) && c != '.' && c != '\n';
     //let mut nums: Vec<usize> = Vec::new();
+    let mut is_valid_num = false;
 
     let temp = two_d_chars
         .iter()
@@ -86,16 +142,18 @@ fn part_1(input: &str) -> usize {
                             diag_ll, diag_lr,
                         ];
 
-                        let is_valid_num = neighbors.iter().filter_map(|&(x, y)| {
+                        is_valid_num = neighbors.iter().filter_map(|&(x, y)| {
                             two_d_chars.iter().nth(x).and_then(|l| l.iter().nth(y))
                         })
-                            .fold(false, |acc, c| acc || is_symbol(*c));
+                            .fold(is_valid_num, |acc, c| acc || is_symbol(*c));
+
                         if is_valid_num {
                             Some(ch)
                         } else {
                             None
                         }
                     } else {
+                        is_valid_num = false;
                         None
                     }
                 })
@@ -103,6 +161,7 @@ fn part_1(input: &str) -> usize {
         })
         .filter_map(|s| s.parse::<usize>().ok());
     temp.sum()
+    */
     /*
     for (row_num, line) in input.lines().enumerate() {
         let mut s_num: String = String::new();
