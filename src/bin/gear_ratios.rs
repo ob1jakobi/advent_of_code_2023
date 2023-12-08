@@ -43,16 +43,67 @@ use std::path::PathBuf;
 /// numbers in the engine schematic?*
 fn part_1(input: &str) -> usize {
 
-    let num_lines = input.lines().collect::<Vec<&str>>().len();
+    //let num_lines = input.lines().collect::<Vec<&str>>().len();
     let two_d_chars: Vec<Vec<char>> = input
         .lines()
         .map(|line| line.chars().collect::<Vec<char>>()).collect();
 
     let is_symbol = |c: char| !c.is_digit(10) && c != '.' && c != '\n';
-    let mut nums: Vec<usize> = Vec::new();
+    //let mut nums: Vec<usize> = Vec::new();
 
+    let temp = two_d_chars
+        .iter()
+        .enumerate()
+        .map(|(row_num, line)| {
+            line
+                .iter()
+                .enumerate()
+                .filter_map(|(col_num, ch)| {
+                    if ch.is_digit(10) {
+                        let (left, right) = match (row_num, col_num) {
+                            (x, y) if y == 0 => ((x, y), (x, y + 1)),
+                            (x, y) => ((x, y - 1), (x, y + 1)),
+                        };
+                        let (up, down) = match (row_num, col_num) {
+                            (x, y) if x == 0 => ((x, y), (x + 1, y)),
+                            (x, y) => ((x - 1, y), (x + 1, y)),
+                        };
+                        let (diag_ul, diag_ur) = match (row_num, col_num) {
+                            (x, y) if x == 0 && y == 0 => ((x, y), (x, y + 1)),
+                            (x, y) if x == 0 => ((x, y - 1), (x, y + 1)),
+                            (x, y) if y == 0 => ((x - 1, y), (x - 1, y + 1)),
+                            (x, y) => ((x - 1, y - 1), (x - 1, y + 1)),
+                        };
+                        let (diag_ll, diag_lr) = match (row_num, col_num) {
+                            (x, y) if y == 0 => ((x + 1, y), (x + 1, y + 1)),
+                            (x, y) => ((x + 1, y - 1), (x + 1, y + 1)),
+                        };
 
+                        let neighbors: [(usize, usize); 8] = [
+                            left, right,
+                            up, down,
+                            diag_ul, diag_ur,
+                            diag_ll, diag_lr,
+                        ];
 
+                        let is_valid_num = neighbors.iter().filter_map(|&(x, y)| {
+                            two_d_chars.iter().nth(x).and_then(|l| l.iter().nth(y))
+                        })
+                            .fold(false, |acc, c| acc || is_symbol(*c));
+                        if is_valid_num {
+                            Some(ch)
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                })
+                .collect::<String>()
+        })
+        .filter_map(|s| s.parse::<usize>().ok());
+    temp.sum()
+    /*
     for (row_num, line) in input.lines().enumerate() {
         let mut s_num: String = String::new();
         let mut is_valid_num: bool = false;
@@ -103,6 +154,7 @@ fn part_1(input: &str) -> usize {
         }
     }
     nums.iter().sum()
+    */
 }
 
 fn part_2(_input: &str) -> usize {
