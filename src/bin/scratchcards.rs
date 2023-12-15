@@ -86,9 +86,32 @@ fn part_1(input: &str) -> usize {
     result
 }
 
-fn part_2(_input: &str) -> usize {
-    // TODO
-    2
+fn part_2(input: &str) -> usize {
+    input
+        .lines()
+        .filter(|line| !line.is_empty())
+        .map(|line| {
+            let parts: String = line.split(":")
+                .filter(|l| l.contains("|"))
+                .collect();
+            let nums: Vec<&str> = parts.split("|").collect();
+
+
+            let (winning_nums, my_nums): (HashSet<i32>, Vec<i32>) = match (nums.first(), nums.last()) {
+                (Some(w_n_s), Some( m_n_s)) => {
+                    (w_n_s.split_ascii_whitespace().filter_map(|n| n.parse::<i32>().ok()).collect(), m_n_s.split_ascii_whitespace().filter_map(|n| n.parse::<i32>().ok()).collect())
+                },
+                _ => (HashSet::default(), Vec::default()),
+            };
+
+            my_nums.iter().filter(|num| winning_nums.contains(num)).count()
+        })
+        .fold(0, |acc, matching_num_count| {
+            match matching_num_count {
+                0 => acc,
+                _ => acc + (1 << (matching_num_count - 1)),
+            }
+        })
 }
 
 fn main() {
